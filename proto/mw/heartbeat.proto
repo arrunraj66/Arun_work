@@ -1,0 +1,27 @@
+// The first real message type: what every node publishes about itself at 1 Hz.
+//
+// Field 1 is the Header, by convention, on every message in this system. Break
+// that convention and AnyHeader stops working for your type.
+
+syntax = "proto3";
+
+package mw.proto;
+
+import "mw/envelope.proto";
+
+enum NodeState {
+  NODE_STATE_UNKNOWN    = 0;   // proto3 requires a zero value; make it the bad one
+  NODE_STATE_CONFIGURED = 1;
+  NODE_STATE_RUNNING    = 2;
+  NODE_STATE_DEGRADED   = 3;
+  NODE_STATE_STOPPED    = 4;
+}
+
+message Heartbeat {
+  Header    header     = 1;
+  string    node_name  = 2;
+  NodeState state      = 3;
+  uint64    tick_count = 4;   // ticks since start
+  uint64    overruns   = 5;   // ticks that exceeded the declared budget
+  uint32    wcet_us    = 6;   // worst execution time this second, microseconds
+}

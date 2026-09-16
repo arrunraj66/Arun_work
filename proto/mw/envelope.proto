@@ -1,0 +1,38 @@
+// The header every message on the Topic Graph carries.
+//
+// These four fields are the reason a recorded log is readable later. Adding
+// them after there are messages in flight makes every log recorded before that
+// point uninterpretable, so they are fixed here, at the start of Stage 2, and
+// changed only through a schema version bump.
+
+syntax = "proto3";
+
+package mw.proto;
+
+message Header {
+  // Which version of the schema produced this message. A consumer that does not
+  // recognise the value refuses the message rather than guessing at its layout.
+  uint32 schema_version = 1;
+
+  // Who published it. Not the topic — the node. Two nodes may publish the same
+  // topic, and when they disagree you need to know which one said what.
+  string publisher = 2;
+
+  // Monotonically increasing per (publisher, topic). A subscriber that sees
+  // 41 then 43 knows it missed one; without this it cannot tell "nothing was
+  // published" from "I lost a message".
+  uint64 sequence = 3;
+
+  // When the publisher stamped it, nanoseconds since the Unix epoch, taken from
+  // the system clock so that stamps are comparable across processes.
+  int64 publish_time_ns = 4;
+}
+
+// Any message whose field 1 is a Header can be parsed as this one.
+//
+// Protobuf skips fields it does not recognise, so the logger and the replay
+// tool can read the header of a message whose payload type they have never
+// heard of. That is what lets one recorder handle every topic.
+message AnyHeader {
+  Header header = 1;
+}
