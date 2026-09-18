@@ -36,3 +36,19 @@ target_link_libraries(mw_proto PUBLIC protobuf::libprotobuf)
 # Position-independent code, so the objects can be folded into a shared library
 # later without rebuilding them.
 set_target_properties(mw_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+
+add_library(lidar_proto OBJECT lidar_scan.proto)
+
+set(LIDAR_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+file(MAKE_DIRECTORY ${LIDAR_PROTO_OUT})
+target_include_directories(lidar_proto PUBLIC ${LIDAR_PROTO_OUT})
+
+protobuf_generate(
+  TARGET         lidar_proto
+  IMPORT_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+  PROTOC_OUT_DIR ${LIDAR_PROTO_OUT}
+)
+
+target_link_libraries(lidar_proto PUBLIC protobuf::libprotobuf)
+set_target_properties(lidar_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)

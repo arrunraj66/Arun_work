@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package lidar.proto;
+
+// The wire format for one lidar::Scan. Field tags are permanent the moment
+// this is used anywhere real  see mw/envelope.proto in the middleware for
+// why, and lidar/scan.hpp for what each field means. This message carries no
+// header of its own; framing and versioning are the log/index's job (Concept
+// 3), not this message's.
+message LidarScan {
+  string frame_id            = 1;
+  int64  stamp_ns             = 2;
+  int64  scan_time_ns         = 3;
+  int64  time_increment_ns    = 4;
+
+  float angle_min             = 5;
+  float angle_max             = 6;
+  float angle_increment       = 7;
+
+  float range_min             = 8;
+  float range_max             = 9;
+
+  // proto3 has no 8-bit integer type; uint32 is the narrowest available.
+  // scan_codec.cpp narrows back to uint8_t on the way into a Scan.
+  uint32 echo_index           = 10;
+  uint32 echo_count           = 11;
+
+  repeated float ranges       = 12;
+  repeated float intensities  = 13;
+}

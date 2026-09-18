@@ -1,0 +1,16 @@
+# Template for the file `find_package(lidar)` actually loads.
+#
+# configure_package_config_file() turns this into lidarConfig.cmake at build
+# time. @PACKAGE_INIT@ expands into a block that works out where the package
+# was installed, so the result is relocatable: move the install tree and it
+# still resolves.
+@PACKAGE_INIT@
+
+# The real content: the target definitions CMake exported for us.
+include("${CMAKE_CURRENT_LIST_DIR}/lidarTargets.cmake")
+
+# Note what is NOT here: no find_dependency(Protobuf), no find_dependency(SQLite3),
+# no ZeroMQ, no mw. liblidar.so resolved all of those inside itself. A consumer
+# needs our headers and our .so, and nothing else.
+
+check_required_components(lidar)
