@@ -41,6 +41,15 @@ struct ScanReader::Impl {
     check_sqlite(sqlite3_open_v2(index_db_path.c_str(), &db, SQLITE_OPEN_READONLY, nullptr), db,
                  "sqlite3_open_v2");
 
+    // Same reasoning as ScanRecorder's busy_timeout: WAL mode (set by
+    // whichever ScanRecorder created/opened this file) means a reader
+    // essentially never needs to wait on a writer, but a WAL checkpoint can
+    // still rarely cause brief contention. Retry for up to 5s instead of
+    // failing on the first collision. No journal_mode PRAGMA needed here --
+    // this connection is read-only, and WAL mode is a property of the file
+    // itself, already set by the writer.
+    check_sqlite(sqlite3_busy_timeout(db, 5000), db, "sqlite3_busy_timeout");
+
     static constexpr char kCount[] = "SELECT COUNT(*) FROM scans;";
     check_sqlite(sqlite3_prepare_v2(db, kCount, -1, &count_stmt, nullptr), db,
                  "sqlite3_prepare_v2(COUNT)");

@@ -48,6 +48,35 @@ struct ScanRecorder::Impl {
 
     check_sqlite(sqlite3_open(index_db_path.c_str(), &db), db, "sqlite3_open");
 
+    // Two fixes for the same underlying problem, both needed together.
+    //
+    // SQLite's DEFAULT journal mode requires a writer to hold an EXCLUSIVE
+    // lock on the whole database file for the duration of a write
+    // transaction, during which no reader can even start one. The moment a
+    // second concurrent reader existed against this file (once
+    // lidar_monitor_main's own ScanReader joined scan_query_server_main's),
+    // an INSERT landing at the same instant as a SELECT was no longer a
+    // rare coincidence -- it happened within minutes, and with no retry
+    // configured, SQLite fails it immediately rather than waiting even a
+    // few milliseconds: "database is locked".
+    //
+    // WAL (write-ahead log) mode is SQLite's own fix for exactly this: one
+    // writer and any number of readers proceed concurrently without
+    // blocking each other, because readers see a consistent snapshot from
+    // the WAL file instead of needing the writer's lock at all. It is a
+    // property of the database FILE, not the connection -- setting it here,
+    // once, upgrades an existing file too (readers opening it later, even
+    // read-only, automatically see WAL mode from the file header).
+    check_sqlite(sqlite3_exec(db, "PRAGMA journal_mode=WAL;", nullptr, nullptr, nullptr), db,
+                 "PRAGMA journal_mode=WAL");
+
+    // Defense in depth on top of WAL: a WAL checkpoint (SQLite folding the
+    // log back into the main file) can still briefly contend with a writer.
+    // busy_timeout tells SQLite to retry for up to 5s before giving up,
+    // instead of failing on the very first collision the way the code
+    // above just did.
+    check_sqlite(sqlite3_busy_timeout(db, 5000), db, "sqlite3_busy_timeout");
+
     static constexpr char kCreateTable[] =
         "CREATE TABLE IF NOT EXISTS scans ("
         "  seq INTEGER PRIMARY KEY,"

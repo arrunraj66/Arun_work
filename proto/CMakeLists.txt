@@ -38,7 +38,7 @@ target_link_libraries(mw_proto PUBLIC protobuf::libprotobuf)
 set_target_properties(mw_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 
-add_library(lidar_proto OBJECT lidar_scan.proto)
+add_library(lidar_proto OBJECT lidar_scan.proto lidar_point_cloud.proto)
 
 set(LIDAR_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${LIDAR_PROTO_OUT})

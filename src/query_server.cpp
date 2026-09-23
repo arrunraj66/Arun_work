@@ -34,6 +34,18 @@ bool parse_range(const std::string& command, std::int64_t& start_ns, std::int64_
   return r2.ec == std::errc();
 }
 
+// Parses "RECENT <window_ns>" into the single integer. Same shape and same
+// "false means not this command" contract as parse_range() above.
+bool parse_recent(const std::string& command, std::int64_t& window_ns) {
+  if (command.rfind("RECENT ", 0) != 0) return false;
+
+  const char* begin = command.data() + 7;
+  const char* end   = command.data() + command.size();
+
+  const auto r = std::from_chars(begin, end, window_ns);
+  return r.ec == std::errc();
+}
+
 }  // namespace
 
 struct ScanQueryServer::Impl {
@@ -62,6 +74,20 @@ struct ScanQueryServer::Impl {
     std::int64_t start_ns = 0, end_ns = 0;
     if (parse_range(command, start_ns, end_ns)) {
       return encode_scans(reader.find_by_time_range(start_ns, end_ns));
+    }
+
+    // "The last window_ns of whatever's been recorded" -- anchored to the
+    // NEWEST RECORDED scan's own stamp_ns, not this machine's wall clock.
+    // Recording keeps everything forever (no deletion happens here); this
+    // is purely a read-side view over the tail of it. An empty recording
+    // has no "newest" to anchor to, so it answers "nothing" the same way
+    // LATEST does in that case, rather than treating window_ns as an
+    // absolute time and returning a meaningless empty range.
+    std::int64_t window_ns = 0;
+    if (parse_recent(command, window_ns)) {
+      if (reader.count() == 0) return encode_scans({});
+      const std::int64_t newest_stamp_ns = reader.get(reader.count() - 1).stamp_ns;
+      return encode_scans(reader.find_by_time_range(newest_stamp_ns - window_ns, newest_stamp_ns));
     }
 
     // Unrecognised command: answered with an honest "nothing", not silence.

@@ -52,7 +52,18 @@ class ScanQueryClient {
   /// means either nothing matched OR the server could not be reached; call
   /// ok() to tell those apart.
   [[nodiscard]] std::vector<Scan> range(std::int64_t start_ns, std::int64_t end_ns) noexcept;
-
+  /// A rolling window: every scan recorded within `window_ns` of the MOST
+  /// RECENTLY RECORDED scan (not wall-clock "now" -- deliberately, so this
+  /// still means something sensible hours after recording stopped, or if
+  /// this machine's clock and the sensor's data disagree). Recording keeps
+  /// everything forever; this is a VIEW over the last `window_ns` of it,
+  /// nothing is deleted by asking for it. Equivalent to calling range() with
+  /// [newest_stamp_ns - window_ns, newest_stamp_ns] yourself, except the
+  /// server works out `newest_stamp_ns` for you so you don't need a
+  /// separate latest() round trip first. Empty means either nothing in that
+  /// window OR the server could not be reached; call ok() to tell those
+  /// apart.
+  [[nodiscard]] std::vector<Scan> recent(std::int64_t window_ns) noexcept;
   /// Whether the MOST RECENT call above actually reached the server and got
   /// a well-formed reply. False after latest()/range() means what came back
   /// (nullopt / empty) says nothing about whether data existed -- the

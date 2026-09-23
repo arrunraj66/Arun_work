@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package lidar.proto;
+
+// The wire format for one lidar::PointCloud (a full 3D frame). Same rules
+// as lidar_scan.proto: field tags are permanent once used anywhere real,
+// and lidar/point_cloud.hpp says what each field means.
+//
+// proto3 packs repeated scalar fields by default, so each array below is
+// sent as one length-prefixed block of 4-byte floats -- no per-point tag.
+message LidarPointCloud {
+  string frame_id           = 1;
+  int64  stamp_ns            = 2;
+  int64  scan_time_ns        = 3;
+
+  float  range_min           = 4;
+  float  range_max           = 5;
+
+  repeated float ranges      = 6;
+  repeated float azimuths    = 7;
+  repeated float elevations  = 8;
+  repeated float intensities = 9;
+}

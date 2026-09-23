@@ -1,0 +1,253 @@
+Start testing: Sep 18 12:18 IST
+----------------------------------------------------------
+1/9 Testing: test_version
+1/9 Test: test_version
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_version"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_version" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_version" end time: Sep 18 12:18 IST
+"test_version" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/9 Testing: test_message
+2/9 Test: test_message
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_message"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_message" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+all message tests passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_message" end time: Sep 18 12:18 IST
+"test_message" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/9 Testing: test_transport
+3/9 Test: test_transport
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_transport"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_transport" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+matching topic is delivered                                ok
+topic frame survives the round trip                        ok
+payload keeps its length (embedded NUL)                    ok
+payload is binary-clean                                    ok
+non-matching topic is filtered out                         ok
+subscribe() matches by prefix                              ok
+an empty queue returns nothing, not an error               ok
+receive() actually waited for its timeout                  ok
+no drops on an unloaded publisher                          ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"test_transport" end time: Sep 18 12:18 IST
+"test_transport" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/9 Testing: test_acoustic
+4/9 Test: test_acoustic
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_acoustic"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_acoustic" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+a frame within its deadline is accepted                    ok
+nothing has arrived yet at t=0                             ok
+1 ms before arrival, still nothing                         ok
+arrival lands where the arithmetic says it should          ok
+the delivered bytes are the bytes that were sent           ok
+a deadline the physics cannot meet is refused, not attempted ok
+and counted as rejected-late                               ok
+first frame is accepted                                    ok
+a second frame is refused mid-transmission, regardless of priority ok
+and counted as rejected-busy                               ok
+once the channel frees, the next offer is accepted         ok
+a frame over max_frame_bytes is refused                    ok
+and counted as rejected-size, not rejected-busy            ok
+the bearer still accepts  the sender is never told about loss ok
+but nothing ever arrives                                   ok
+and the loss is visible only to the stats a test can see   ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_acoustic" end time: Sep 18 12:18 IST
+"test_acoustic" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/9 Testing: test_node
+5/9 Test: test_node
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_node"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_node" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+step() before start_all() throws rather than ticking           ok
+start_all() before configure_all() throws                      ok
+configure() and start() are each called exactly once           ok
+a node cannot be added once the executor is running            ok
+tick() receives exactly the now_ns that step() was given       ok
+the executor counts its own steps                              ok
+a period-0 node ticks on every step                            ok
+a 30 ms node ticks three times across 90 ms                    ok
+and it ticks on its own period boundaries, not the executor's  ok
+a late step runs the node once, not once per missed period     ok
+and the four skipped slots are counted                         ok
+every throwing tick is counted as a fault                      ok
+a faulted tick still counts as a tick that happened            ok
+a node that throws does not stop the node after it             ok
+a tick over its declared budget is counted as an overrun       ok
+and the measured duration reflects real elapsed time           ok
+a tick inside its budget is not                                ok
+the report carries the budget the node declared                ok
+stop() runs in reverse order of add()                          ok
+stop_all() is safe to call twice                               ok
+start_all() reports a node that refused to start               ok
+and the nodes already started are stopped again                ok
+a configure failure names the node that caused it              ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_node" end time: Sep 18 12:18 IST
+"test_node" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/9 Testing: test_scan_codec
+6/9 Test: test_scan_codec
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_scan_codec"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_scan_codec" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+the serialised bytes parse back as a LidarScan             ok
+frame_id survives                                          ok
+stamp_ns survives                                          ok
+scan_time_ns survives                                      ok
+time_increment_ns survives                                 ok
+angle_min survives exactly                                 ok
+angle_max survives exactly                                 ok
+angle_increment survives exactly                           ok
+range_min survives exactly                                 ok
+range_max survives exactly                                 ok
+echo_index survives                                        ok
+echo_count survives                                        ok
+every range value survives, in order                       ok
+an empty intensities vector stays empty, not null          ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_scan_codec" end time: Sep 18 12:18 IST
+"test_scan_codec" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/9 Testing: test_recorder
+7/9 Test: test_recorder
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_recorder"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_recorder" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+recorder.count() matches scans recorded                    ok
+index db reopens after recorder closes                     ok
+log file reopens after recorder closes                     ok
+log's own length prefix matches the index's length column  ok
+read exactly as many payload bytes as declared             ok
+payload parses back as a LidarScan                         ok
+restored stamp_ns matches both the original scan and the index ok
+restored ranges match the original scan                    ok
+restored sample count matches the index's sample_count column ok
+log's own length prefix matches the index's length column  ok
+read exactly as many payload bytes as declared             ok
+payload parses back as a LidarScan                         ok
+restored stamp_ns matches both the original scan and the index ok
+restored ranges match the original scan                    ok
+restored sample count matches the index's sample_count column ok
+log's own length prefix matches the index's length column  ok
+read exactly as many payload bytes as declared             ok
+payload parses back as a LidarScan                         ok
+restored stamp_ns matches both the original scan and the index ok
+restored ranges match the original scan                    ok
+restored sample count matches the index's sample_count column ok
+read back exactly as many rows as were recorded            ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"test_recorder" end time: Sep 18 12:18 IST
+"test_recorder" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/9 Testing: test_reader
+8/9 Test: test_reader
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_reader"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_reader" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+reader.count() matches the number of scans recorded        ok
+get(i) for every i in [0, 100) matches what was recorded   ok
+get(count()) throws std::out_of_range instead of reading past the end ok
+find_by_time_range(1.0s, 1.9s) returns exactly 10 scans    ok
+find_by_time_range results are exactly scans 10..19, in order ok
+find_by_time_range with no matches returns an empty vector ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.71 sec
+----------------------------------------------------------
+Test Passed.
+"test_reader" end time: Sep 18 12:18 IST
+"test_reader" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/9 Testing: test_pubsub
+9/9 Test: test_pubsub
+Command: "/home/intern/Documents/auv_middleware/build-asan/tests/test_pubsub"
+Directory: /home/intern/Documents/auv_middleware/build-asan/tests
+"test_pubsub" start time: Sep 18 12:18 IST
+Output:
+----------------------------------------------------------
+publisher and subscriber agree on the default topic              ok
+a published scan reaches the subscriber                          ok
+every field survives the round trip                              ok
+a burst of 10 scans arrives complete and in order                ok
+nothing arrived that failed to parse                             ok
+poll_scan times out cleanly when nothing is sent                 ok
+a ScanSubscriber used through IScanSource* delivers scans        ok
+scans received through the interface are identical               ok
+subscriber honours a non-default topic                           ok
+a subscriber on another topic receives nothing                   ok
+
+PASSED (0 failures)
+<end of output>
+Test time =   0.24 sec
+----------------------------------------------------------
+Test Passed.
+"test_pubsub" end time: Sep 18 12:18 IST
+"test_pubsub" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Sep 18 12:18 IST

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -fsanitize=address,undefined CMakeFiles/mw_acoustic_demo.dir/mw_acoustic_demo.cpp.o -o mw_acoustic_demo  ../src/libmw.a /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libzmq.so 

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_pubsub.dir/test_pubsub.cpp.o -o test_pubsub  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 

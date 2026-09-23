@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmw.a CMakeFiles/mw.dir/version.cpp.o CMakeFiles/mw.dir/time.cpp.o CMakeFiles/mw.dir/message.cpp.o CMakeFiles/mw.dir/transport.cpp.o CMakeFiles/mw.dir/acoustic.cpp.o CMakeFiles/mw.dir/acoustic_loopback.cpp.o CMakeFiles/mw.dir/executor.cpp.o ../proto/CMakeFiles/mw_proto.dir/generated/mw/envelope.pb.cc.o ../proto/CMakeFiles/mw_proto.dir/generated/mw/heartbeat.pb.cc.o
+/usr/bin/ranlib libmw.a

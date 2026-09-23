@@ -56,3 +56,13 @@ add_executable(test_pubsub test_pubsub.cpp)
 target_compile_options(test_pubsub PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 target_link_libraries(test_pubsub PRIVATE lidar::lidar)
 add_test(NAME test_pubsub COMMAND test_pubsub)
+
+
+
+# 3D counterpart of test_scan_codec: reaches into src/ for cloud_codec.hpp
+# and needs lidar_proto's generated headers, same reasoning as above.
+add_executable(test_cloud_codec test_cloud_codec.cpp)
+target_include_directories(test_cloud_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(test_cloud_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_cloud_codec PRIVATE lidar::lidar lidar_proto)
+add_test(NAME test_cloud_codec COMMAND test_cloud_codec)

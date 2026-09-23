@@ -29,6 +29,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(Warnings)
 include(Sanitizers)
 include(ZeroMQ)
+include(OpenCV)
 include(SickScanXd)
 add_subdirectory(third_party/sqlite3)  # vendored SQLite amalgamation -- see
                                         # third_party/sqlite3/CMakeLists.txt.

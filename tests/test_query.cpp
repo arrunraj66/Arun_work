@@ -95,10 +95,34 @@ int main() {
     check(client.ok(), "a range with no matches still reaches the server");
     check(got.empty(), "and an empty vector correctly means \"nothing in range\"");
   }
+  {
+    // Scans are 40ms apart (see make_scan). A 120ms window anchored to the
+    // newest scan (#9) should reach exactly back to #6: 9,8,7,6 are each
+    // within 120ms of #9's own stamp_ns; #5 (160ms back) is not.
+    const std::vector<lidar::Scan> got = client.recent(120'000'000);
+    check(client.ok(), "recent() reaches a running server");
+    check(got.size() == 4, "and returns exactly the scans within the window of the newest one");
+    bool in_order = got.size() == 4;
+    for (std::size_t i = 0; in_order && i < got.size(); ++i) {
+      in_order = same_scan(got[i], make_scan(6 + static_cast<int>(i)));
+    }
+    check(in_order, "in recording order, field for field");
+  }
 
+  {
+    // The real point of anchoring to the newest scan's OWN stamp_ns rather
+    // than wall-clock "now": these scans are timestamped in 2023, not
+    // whenever this test happens to run. A wall-clock-anchored version
+    // would find nothing here; asking for a window bigger than the whole
+    // recording anchored to the newest scan correctly returns everything.
+    const std::vector<lidar::Scan> got = client.recent(1'000'000'000);   // 1s >> 360ms span
+    check(client.ok(), "recent() with a window covering the whole recording reaches the server");
+    check(got.size() == 10, "and returns every scan, confirming it anchors to the newest "
+                             "RECORDED stamp, not wall-clock now");
+  }
   keep_serving = false;
   server_thread.join();
-  check(server.served() == 3, "the server counted exactly the three requests answered");
+  check(server.served() == 5, "the server counted exactly the five requests answered");
 
   // Now the point of the whole feature: nobody is listening any more.
   {

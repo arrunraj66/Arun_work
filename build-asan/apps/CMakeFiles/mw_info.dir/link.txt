@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -fsanitize=address,undefined CMakeFiles/mw_info.dir/mw_info.cpp.o -o mw_info  ../src/libmw.a /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libzmq.so 

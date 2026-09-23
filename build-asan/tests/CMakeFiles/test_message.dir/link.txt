@@ -1,0 +1,1 @@
+/usr/bin/c++ -g -fsanitize=address,undefined CMakeFiles/test_message.dir/test_message.cpp.o -o test_message  ../src/libmw.a /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libzmq.so 

@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/test_reader.dir/test_reader.cpp.o -o test_reader  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 

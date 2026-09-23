@@ -64,7 +64,21 @@ std::vector<Scan> ScanQueryClient::range(std::int64_t start_ns, std::int64_t end
     return {};
   }
 }
-
+std::vector<Scan> ScanQueryClient::recent(std::int64_t window_ns) noexcept {
+  try {
+    const std::string request = "RECENT " + std::to_string(window_ns);
+    const std::optional<std::string> reply = impl_->requester.request(request, impl_->timeout_ms);
+    if (!reply.has_value()) {
+      impl_->last_ok = false;
+      return {};
+    }
+    impl_->last_ok = true;
+    return decode_scans(*reply);
+  } catch (...) {
+    impl_->last_ok = false;
+    return {};
+  }
+}
 bool ScanQueryClient::ok() const noexcept { return impl_->last_ok; }
 
 }  // namespace lidar

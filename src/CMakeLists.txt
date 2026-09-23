@@ -46,12 +46,15 @@ target_link_libraries(mw
 # what earns this.
 add_library(lidar SHARED
   scan_codec.cpp
+  cloud_codec.cpp          # <-- 3D: PointCloud <-> LidarPointCloud
   recorder.cpp
   reader.cpp
   publisher.cpp
   subscriber.cpp
-  query_wire.cpp
-  query_client.cpp
+  cloud_publisher.cpp      # <-- 3D: CloudPublisher, built on mw::Publisher
+  cloud_subscriber.cpp     #     and CloudSubscriber, same as the 2D pair
+  query_wire.cpp           # <-- backup path: the query request/response
+  query_client.cpp         #     wire format, and the two ends of it
   query_server.cpp
 )
 add_library(lidar::lidar ALIAS lidar)
@@ -87,6 +90,7 @@ target_link_libraries(lidar
 if(SICK_SCAN_XD_FOUND)
   add_library(lidar_sick
     sick_scan_source.cpp
+    sick_cloud_source.cpp   # <-- 3D: SickCloudSource, reads elevation
   )
   add_library(lidar::sick ALIAS lidar_sick)
 
