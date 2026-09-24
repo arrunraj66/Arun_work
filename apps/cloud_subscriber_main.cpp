@@ -1,3 +1,15 @@
+// Step 6's runnable half: connect to a CloudPublisher and print what
+// arrives. Run this in one terminal and cloud_publisher_main in another.
+// Same shape as scan_subscriber_main.cpp -- has no idea where the clouds
+// originate, asks an ICloudSource for them, prints them.
+//
+// Usage:
+//   ./cloud_subscriber_main [endpoint] [topic]
+// Defaults: ipc:///tmp/lidar_cloud.sock, lidar.cloud
+//
+// Across machines use the publisher's address, e.g.
+//   ./cloud_subscriber_main tcp://192.168.12.240:5580
+
 #include "lidar/cloud_subscriber.hpp"
 #include "lidar/point_cloud.hpp"
 

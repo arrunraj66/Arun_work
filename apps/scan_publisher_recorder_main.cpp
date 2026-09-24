@@ -71,8 +71,8 @@
 // Defaults: endpoint tcp://*:5556, topic lidar.scan
 //
 // Example:
-//   ./scan_publisher_recorder_main ~/sick_scan_ws/sick_scan_xd/launch/sick_picoscan.launch 
-//       192.168.12.222 192.168.12.240 
+//   ./scan_publisher_recorder_main ~/sick_scan_ws/sick_scan_xd/launch/sick_picoscan.launch \
+//       192.168.12.222 192.168.12.240 \
 //       ~/lidar_data/dive.log ~/lidar_data/dive.db "tcp://*:5556"
 //
 // Recording APPENDS, same as record_live_scans -- running this again after a
@@ -154,8 +154,6 @@ lidar::SickScanSource connect_with_stop_check(const lidar::SickScanSource::Confi
   std::future<lidar::SickScanSource> fut =
       std::async(std::launch::async, [&cfg] { return lidar::SickScanSource(cfg); });
 
-  
-  int checks_waited = 0;
   while (true) {
     // Re-assert OUR handler on every check, not just once -- the vendor SDK
     // re-installs its own SIGINT handler as part of every connection
@@ -165,13 +163,6 @@ lidar::SickScanSource connect_with_stop_check(const lidar::SickScanSource::Confi
 
     if (fut.wait_for(std::chrono::milliseconds(500)) == std::future_status::ready) {
       return fut.get();  // re-throws here if the constructor itself threw
-    }
-
-    ++checks_waited;
-    if (checks_waited % 10 == 0) {  // every ~5s (10 x 500ms)
-      std::printf("  ... still trying to connect to %s (%d s) ...\n", cfg.hostname.c_str(),
-                  checks_waited / 2);
-      std::fflush(stdout);
     }
 
     if (g_stop_requested.load()) {

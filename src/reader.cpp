@@ -32,7 +32,6 @@ void check_sqlite(int rc, sqlite3* db, const char* what) {
 
 struct ScanReader::Impl {
   Impl(const std::string& log_path, const std::string& index_db_path) {
-    try {
     log.open(log_path, std::ios::binary);
     if (!log.is_open()) {
       throw std::runtime_error("ScanReader: could not open log file " + log_path);
@@ -68,25 +67,13 @@ struct ScanReader::Impl {
         " WHERE stamp_ns >= ? AND stamp_ns <= ? ORDER BY seq;";
     check_sqlite(sqlite3_prepare_v2(db, kRange, -1, &range_stmt, nullptr), db,
                  "sqlite3_prepare_v2(RANGE)");
-    } catch (...) {
-      close_resources();
-      throw;
-    }
-  }
-
-  void close_resources() noexcept {
-    if (range_stmt != nullptr) sqlite3_finalize(range_stmt);
-    range_stmt = nullptr;
-    if (get_stmt != nullptr) sqlite3_finalize(get_stmt);
-    get_stmt = nullptr;
-    if (count_stmt != nullptr) sqlite3_finalize(count_stmt);
-    count_stmt = nullptr;
-    if (db != nullptr) sqlite3_close(db);
-    db = nullptr;
   }
 
   ~Impl() {
-    close_resources();
+    if (range_stmt != nullptr) sqlite3_finalize(range_stmt);
+    if (get_stmt != nullptr) sqlite3_finalize(get_stmt);
+    if (count_stmt != nullptr) sqlite3_finalize(count_stmt);
+    if (db != nullptr) sqlite3_close(db);
     // log closes itself: std::ifstream's destructor closes it.
   }
 

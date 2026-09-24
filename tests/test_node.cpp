@@ -1,5 +1,5 @@
 // The node contract and the executor, tested with a fake clock and no
-// sleeping anywhere  the same discipline as test_acoustic. Every timing
+// sleeping anywhere — the same discipline as test_acoustic. Every timing
 // property below is checked by handing step() a number, not by waiting.
 //
 // The one exception is the budget-overrun test, which has to burn real CPU
@@ -26,7 +26,7 @@ void check(bool ok, const char* what) {
 }
 
 /// A node that records everything that was done to it. Nothing here does any
-/// real work  the point is to observe the executor, not to compute anything.
+/// real work — the point is to observe the executor, not to compute anything.
 class SpyNode final : public mw::INode {
  public:
   SpyNode(std::string name, std::int64_t period_ns, std::int64_t budget_ns = 0)

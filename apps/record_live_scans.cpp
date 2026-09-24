@@ -13,6 +13,10 @@
 //   ./record_live_scans <launch_file> <sensor_ip> <this_machine_ip>
 //                       [seconds] [log_path] [db_path]
 //
+// Example (the combination verified working against the real unit):
+//   ./record_live_scans ~/sick_scan_ws/sick_scan_xd/launch/sick_picoscan.launch
+//                       192.168.12.222 192.168.12.240 60
+//
 // Defaults: 60 seconds, ./live_scans.log, ./live_scans.db
 //
 // Recording APPENDS: running it twice adds to the same files rather than
@@ -74,8 +78,8 @@ int main(int argc, char** argv) {
     // steady_clock, not the sensor's timestamps: "record for 60 seconds"
     // means 60 seconds of OUR wall time. The sensor's own clock is not a
     // reliable stopwatch here -- its timestamp base switches part-way
-    // through a run, which would make a duration computed from scan stamps
-    // jump by years.
+    // through a run (see lidar-sick-polling-api-is-unusable.md), which
+    // would make a duration computed from scan stamps jump by years.
     const auto started = std::chrono::steady_clock::now();
     const auto deadline = started + std::chrono::seconds(seconds);
 

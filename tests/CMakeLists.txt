@@ -5,25 +5,18 @@ foreach(test_name IN ITEMS test_version test_message test_transport test_acousti
   target_link_libraries(${test_name} PRIVATE mw::mw mw_warnings)
   add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
+
 # Runs a server on its own std::thread, so it needs Threads::Threads
 # explicitly -- the only test in this file that does.
 find_package(Threads REQUIRED)
 add_executable(test_reqrep test_reqrep.cpp)
 target_link_libraries(test_reqrep PRIVATE mw::mw mw_warnings Threads::Threads)
 add_test(NAME test_reqrep COMMAND test_reqrep)
-# The backup query path, proven end to end: ScanRecorder seeds a real
-# recording, ScanQueryServer answers from it, ScanQueryClient asks. Public
-# lidar:: API only. Runs the server on its own thread, hence Threads::Threads
-# (find_package(Threads) already ran for test_reqrep above).
-add_executable(test_query test_query.cpp)
-target_compile_options(test_query PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
-target_link_libraries(test_query PRIVATE lidar::lidar Threads::Threads)
-add_test(NAME test_query COMMAND test_query)
 
 add_executable(test_scan_codec test_scan_codec.cpp)
 target_include_directories(test_scan_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(test_scan_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
-# This test reaches into src/ on purpose -- it calls to_proto()/from_proto()
+# This test reaches into src/ on purpose  it calls to_proto()/from_proto()
 # directly, which the public lidar:: target never exposes. It therefore also
 # needs lidar_proto's generated headers directly; a normal consumer of
 # lidar::lidar never would, and never gets them, because that dependency is
@@ -48,7 +41,6 @@ add_executable(test_reader test_reader.cpp)
 target_compile_options(test_reader PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 target_link_libraries(test_reader PRIVATE lidar::lidar)
 add_test(NAME test_reader COMMAND test_reader)
-
 # Steps 4+5 can only be tested together, so they are. Uses ONLY the public
 # lidar:: API -- no src/ include dir, no lidar_proto, no ZeroMQ, no mw
 # headers -- which is itself part of what the test proves.
@@ -57,7 +49,14 @@ target_compile_options(test_pubsub PRIVATE -Wall -Wextra -Wpedantic -Wconversion
 target_link_libraries(test_pubsub PRIVATE lidar::lidar)
 add_test(NAME test_pubsub COMMAND test_pubsub)
 
-
+# The backup query path, proven end to end: ScanRecorder seeds a real
+# recording, ScanQueryServer answers from it, ScanQueryClient asks. Public
+# lidar:: API only. Runs the server on its own thread, hence Threads::Threads
+# (find_package(Threads) already ran for test_reqrep above).
+add_executable(test_query test_query.cpp)
+target_compile_options(test_query PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_query PRIVATE lidar::lidar Threads::Threads)
+add_test(NAME test_query COMMAND test_query)
 
 # 3D counterpart of test_scan_codec: reaches into src/ for cloud_codec.hpp
 # and needs lidar_proto's generated headers, same reasoning as above.

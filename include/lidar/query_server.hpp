@@ -1,6 +1,6 @@
 #pragma once
 //
-// lidar/query_server.hpp  ScanQueryServer, the other end of ScanQueryClient.
+// lidar/query_server.hpp — ScanQueryServer, the other end of ScanQueryClient.
 //
 // Runs on the machine that owns the recording (typically the same machine
 // as scan_publisher_main, but it only needs the log+index -- it never

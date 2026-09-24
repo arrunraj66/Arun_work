@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/dump_scans.dir/dump_scans.cpp.o -o dump_scans  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 

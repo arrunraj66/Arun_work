@@ -1,6 +1,6 @@
 #pragma once
 //
-// mw/transport.hpp  layer L1, the in-hull transport.
+// mw/transport.hpp  layer L1, the in-hull transport.
 //
 // A thin wrapper over ZeroMQ. Three jobs and no more:
 //   * own the ZeroMQ context for a process,
@@ -70,7 +70,7 @@ class Publisher {
   Publisher& operator=(Publisher&&) noexcept;
 
   /// Send two frames: the topic, then the payload.
-  /// Returns false if the send queue was full  the sample is dropped, and
+  /// Returns false if the send queue was full  the sample is dropped, and
   /// dropped() counts it. It does not block and it does not throw.
   [[nodiscard]] bool publish(std::string_view topic, std::string_view payload) noexcept;
 
@@ -99,7 +99,7 @@ class Subscriber {
   void unsubscribe(std::string_view prefix);
 
   /// Wait up to `timeout_ms` for one message.
-  /// Returns nothing if the timeout expired  that is normal, not an error.
+  /// Returns nothing if the timeout expired  that is normal, not an error.
   [[nodiscard]] std::optional<Message> receive(int timeout_ms) noexcept;
 
  private:

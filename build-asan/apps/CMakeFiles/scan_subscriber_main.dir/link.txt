@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/scan_subscriber_main.dir/scan_subscriber_main.cpp.o -o scan_subscriber_main  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 

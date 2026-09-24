@@ -1,6 +1,6 @@
 #pragma once
 //
-// mw/node.hpp  layer L2, the node contract.
+// mw/node.hpp — layer L2, the node contract.
 //
 // A node is a unit of work with a declared shape and a declared cost. Five
 // methods, and the list of what it is NOT allowed to own is longer and more
@@ -17,7 +17,7 @@
 // Tuesday". A node that is HANDED the time replays perfectly: feed it the
 // same times in the same order and it produces the same outputs, on a desk,
 // six months later. Deterministic replay is not a feature you add at the end
-//  it is a property you either preserve in this contract or lose forever.
+// — it is a property you either preserve in this contract or lose forever.
 //
 // Retro-fitting an injected clock means touching every node that already
 // exists, which is why it goes in before there is a second node.
@@ -61,13 +61,13 @@ struct NodeSpec {
 /// The order is fixed and the executor enforces it:
 ///
 ///   spec()        may be called at any time, and changes nothing
-///   configure()   once, before start()    read settings, size buffers
-///   start()       once, after configure()  acquire what running needs
+///   configure()   once, before start()   — read settings, size buffers
+///   start()       once, after configure() — acquire what running needs
 ///   tick(now)     many times, after start()
 ///   stop()        once, after the last tick
 ///
 /// The split between configure() and start() is not ceremony. configure() is
-/// where everything that could fail on bad input fails  a missing file, a
+/// where everything that could fail on bad input fails — a missing file, a
 /// nonsense parameter, a buffer that cannot be sized. start() is where the
 /// node commits to running. Separating them means a fleet of nodes can all be
 /// configured first, and a single bad parameter is discovered before ANY node
@@ -91,7 +91,7 @@ class INode {
   /// oversight. A node that hits something impossible should be able to say
   /// so in the normal C++ way instead of swallowing it and returning a bool
   /// nobody checks. The executor catches whatever comes out, counts it, and
-  /// keeps the other nodes running  it is the firewall, so that one broken
+  /// keeps the other nodes running — it is the firewall, so that one broken
   /// node cannot take the vehicle with it.
   ///
   /// What tick() must not do: block, wait on a lock it might not get, or
@@ -100,7 +100,7 @@ class INode {
   virtual void tick(std::int64_t now_ns) = 0;
 
   /// Release what start() acquired. noexcept, because this runs during
-  /// shutdown  possibly a shutdown already caused by something going wrong 
+  /// shutdown — possibly a shutdown already caused by something going wrong —
   /// and a throw here would replace the original problem with a worse one.
   virtual void stop() noexcept = 0;
 };

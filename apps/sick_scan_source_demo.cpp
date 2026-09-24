@@ -1,5 +1,17 @@
-// The actual "node"  a real program with a real main(), the same shape as
-// a ROS node, just without ROS.
+// The actual "node" — a real program with a real main(), the same shape as
+// a ROS node, just without ROS. SickScanSource by itself is only a class
+// sitting in a library; nothing runs until some program constructs one.
+// This is that program, doing nothing but proving the sensor connects,
+// streams, and disconnects.
+//
+// What it does, top to bottom:
+//   1. build a SickScanSource        -- this line IS the connect
+//   2. poll it in a loop, print each scan's summary
+//   3. let it go out of scope        -- this IS the disconnect
+//
+// Nothing about ZeroMQ, the publisher, or the recorder is here yet -- this
+// is deliberately the smallest possible program that proves SickScanSource
+// itself works, before it's wired into anything bigger.
 //
 // Usage:
 //   ./sick_scan_source_demo <launch_file> <sensor_ip> <this_machine_ip>
@@ -7,6 +19,9 @@
 // Example (the combination verified working against the real unit):
 //   ./sick_scan_source_demo ~/sick_scan_ws/sick_scan_xd/launch/sick_picoscan.launch
 //                           192.168.12.222 192.168.12.240
+//
+// All three arguments are required. <this_machine_ip> is the address the
+// sensor pushes UDP scan data to -- find it with `ip -4 addr show`.
 
 #include "sick_scan_source.hpp"
 
@@ -57,7 +72,14 @@ int main(int argc, char** argv) {
                     static_cast<double>(scan.ranges.back()));
       }
     }
+    // Unreachable today (the loop above only exits via Ctrl+C), but
+    // source's destructor runs the automatic disconnect the moment this
+    // scope ends -- nothing needs to be added here to make that happen.
   } catch (const std::exception& e) {
+    // The constructor throws if the configuration is incomplete or the
+    // connect/enable handshake fails -- see SickScanSource's header.
+    // Catching it here turns that into one readable line instead of the
+    // program aborting.
     std::fprintf(stderr, "failed to connect: %s\n", e.what());
     return 1;
   }

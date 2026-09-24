@@ -40,7 +40,7 @@ bool CloudSubscriber::poll_cloud(PointCloud& out, int timeout_ms) noexcept {
   try {
     std::optional<mw::Message> msg = impl_->subscriber.receive(timeout_ms);
     if (!msg.has_value()) {
-      return false;
+      return false;  // timeout: the ordinary case, per ICloudSource's contract
     }
 
     if (!impl_->wire.ParseFromString(msg->payload)) {
@@ -51,7 +51,7 @@ bool CloudSubscriber::poll_cloud(PointCloud& out, int timeout_ms) noexcept {
     out = from_proto(impl_->wire);
     return true;
   } catch (...) {
-    return false;
+    return false;  // declared noexcept; see CloudPublisher::publish
   }
 }
 

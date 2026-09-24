@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/test_scan_codec.dir/test_scan_codec.cpp.o ../proto/CMakeFiles/lidar_proto.dir/generated/lidar_scan.pb.cc.o -o test_scan_codec  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 /usr/lib/x86_64-linux-gnu/libprotobuf.so 

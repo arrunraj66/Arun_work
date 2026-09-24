@@ -147,7 +147,7 @@ void Executor::step(std::int64_t now_ns) {
     // steady_time_ns() below is the MEASUREMENT clock: how long this tick
     // really took on this machine, right now. That number is a property of
     // the hardware and the load, it is different on every run, and it must
-    // never reach the node  a node that saw it would stop being replayable.
+    // never reach the node — a node that saw it would stop being replayable.
     // It exists only so the executor can compare against the budget.
     const std::int64_t began = steady_time_ns();
     try {

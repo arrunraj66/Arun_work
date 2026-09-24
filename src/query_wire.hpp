@@ -1,6 +1,6 @@
 #pragma once
 //
-// src/query_wire.hpp  the private wire format the query client and server
+// src/query_wire.hpp — the private wire format the query client and server
 // agree on. Never included by include/lidar/, same rule as scan_codec.hpp:
 // nothing that links this library needs to know protobuf is involved.
 //

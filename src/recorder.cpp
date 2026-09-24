@@ -37,7 +37,6 @@ void check_sqlite(int rc, sqlite3* db, const char* what) {
 
 struct ScanRecorder::Impl {
   Impl(const std::string& log_path, const std::string& index_db_path) {
-    try {
     // ios::app, not ios::out: every write lands at the current end of file
     // regardless of any earlier seek, which is what lets recording resume
     // across separate runs without corrupting what's already logged.
@@ -106,21 +105,11 @@ struct ScanRecorder::Impl {
       scan_count = static_cast<std::uint64_t>(sqlite3_column_int64(count_stmt, 0));
     }
     sqlite3_finalize(count_stmt);
-    } catch (...) {
-      close_resources();
-      throw;
-    }
-  }
-
-  void close_resources() noexcept {
-    if (insert_stmt != nullptr) sqlite3_finalize(insert_stmt);
-    insert_stmt = nullptr;
-    if (db != nullptr) sqlite3_close(db);
-    db = nullptr;
   }
 
   ~Impl() {
-    close_resources();
+    if (insert_stmt != nullptr) sqlite3_finalize(insert_stmt);
+    if (db != nullptr) sqlite3_close(db);
     // log closes itself: std::ofstream's destructor flushes and closes.
   }
 

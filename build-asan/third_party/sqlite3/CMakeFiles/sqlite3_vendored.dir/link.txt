@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsqlite3_vendored.a CMakeFiles/sqlite3_vendored.dir/sqlite3.c.o
-/usr/bin/ranlib libsqlite3_vendored.a

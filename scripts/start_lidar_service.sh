@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# scripts/start_lidar_service.sh  the one command that starts everything the
+# scripts/start_lidar_service.sh — the one command that starts everything the
 # GUI team depends on: the live push stream (port 5556) and the pull-based
 # backup query service (port 5560), both reading/writing the same recording.
 #
@@ -28,13 +28,6 @@
 # which is exactly what turned the SQLite "database is locked" bug into a
 # full outage instead of one restart.
 #
-# THIS SCRIPT IS SENSOR 1 ONLY. Sensor 2 has its own, completely separate
-# copy: scripts/start_lidar_service_2.sh -- same structure, its own ports,
-# its own recording files, its own settings block. They are deliberately
-# NOT merged into one script: keeping them separate means an edit or a typo
-# in one can never break the other, and each can be started, stopped, and
-# debugged completely independently, in its own terminal.
-#
 # Edit the settings block below once for your machine, then just run:
 #   ./scripts/start_lidar_service.sh
 # Stop everything with Ctrl+C (once) in the same terminal.
@@ -47,7 +40,7 @@ set -u
 BUILD_DIR="$HOME/Documents/auv_middleware/build"
 
 SICK_LAUNCH_FILE="$HOME/sick_scan_ws/sick_scan_xd/launch/sick_picoscan.launch"
-SENSOR_IP="192.168.12.2"
+SENSOR_IP="192.168.12.222"
 THIS_MACHINE_IP="192.168.12.240"
 
 LOG_PATH="$HOME/lidar_data/dive.log"
@@ -56,6 +49,9 @@ DB_PATH="$HOME/lidar_data/dive.db"
 PUBLISH_ENDPOINT="tcp://*:5556"
 QUERY_ENDPOINT="tcp://*:5560"
 
+# How long a restarted process must stay up before its own backoff resets
+# back down to RESTART_BACKOFF_INITIAL_S. How far the backoff is allowed to
+# grow in between.
 RESTART_BACKOFF_INITIAL_S=2
 RESTART_BACKOFF_MAX_S=30
 MIN_HEALTHY_UPTIME_S=30
@@ -74,6 +70,57 @@ done
 
 mkdir -p "$(dirname "$LOG_PATH")"
 
+# supervise LABEL CMD...
+#
+# Runs CMD in a restart loop: start it, wait for it, and if it exits on its
+# own (not because we told it to stop) restart it after a backoff. Exits
+# once told to stop (via SIGINT/SIGTERM to THIS function's own process --
+# see the trap below), after making sure the child it is currently running
+# has actually exited.
+#
+# Two signal-handling details matter here, both learned the hard way
+# earlier in this project:
+#
+# 1. Bash gives an asynchronous (`&`) command in a non-interactive script
+#    SIGINT disposition "ignored" by default, so Ctrl+C on the script's own
+#    process group can't accidentally kill a background job. That ignored
+#    disposition survives exec() into a real compiled binary and would
+#    silently swallow the SIGINT this function sends it below -- so every
+#    process this function starts, INCLUDING THIS FUNCTION ITSELF (it also
+#    runs as `supervise ... &` from main, below), gets `trap - INT` as its
+#    very first action, resetting that disposition back to normal before
+#    doing anything else.
+#
+# 2. Once disposition is back to normal, an explicit `trap '...' INT TERM`
+#    here catches Ctrl+C/`kill` directed at this function's own PID, marks
+#    `stopping=1`, and forwards a real SIGINT to whichever child is
+#    currently running (by PID, captured in a variable the trap closure can
+#    see). The main `wait "$child_pid"` below is interrupted by that
+#    trapped signal and returns immediately -- not 30s later mid-backoff --
+#    which is why the backoff sleep is a plain foreground `sleep`, not
+#    another background job: only a FOREGROUND command is interrupted
+#    promptly by a trapped signal partway through.
+#
+# 3. A SECOND Ctrl+C, pressed while the first is still being handled (e.g.
+#    someone presses it again because the terminal briefly looks stuck
+#    while the real binary's shutdown sequence runs), is real bash
+#    behavior that bit this exact script on real hardware: bash's `wait`
+#    returns immediately on ANY trapped signal, even one delivered while an
+#    earlier delivery of the same signal is still being acted on -- so a
+#    second Ctrl+C could make the FINAL `wait "$child_pid"` below (the one
+#    meant to block until the real binary has actually finished exiting)
+#    return early, letting this function report "stopped" before the child
+#    -- and whatever real shutdown work it's still doing, like telling a
+#    sensor to stop -- has actually finished. The fix is in the trap body
+#    itself: `trap "" INT TERM` as its last action turns off our own
+#    signal handling entirely, once, right after forwarding the real
+#    signal the first time -- so a second Ctrl+C can no longer interrupt
+#    the waits below early. It doesn't (and can't, from a wrapper script)
+#    stop a second Ctrl+C from also reaching the real binary directly, the
+#    same way the first one does -- that part is just standard Unix
+#    behavior common to virtually every CLI tool: press Ctrl+C once and
+#    let it finish shutting down, don't press it again while it's still
+#    printing shutdown messages.
 supervise() {
   local label="$1" pidfile="$2"; shift 2
   trap - INT
@@ -109,6 +156,10 @@ supervise() {
     [[ "$backoff" -gt "$RESTART_BACKOFF_MAX_S" ]] && backoff="$RESTART_BACKOFF_MAX_S"
   done
 
+  # Block until the child we just signalled (if any) has actually finished
+  # its real shutdown (sensor stop command / file flush) -- the `wait`
+  # above can return as soon as the signal interrupts it, before the child
+  # has finished exiting.
   wait "$child_pid" 2>/dev/null
   echo "0" > "$pidfile"
 }
@@ -119,6 +170,9 @@ PUBLISHER_SUPERVISOR_PID=""
 QUERY_SERVER_SUPERVISOR_PID=""
 
 cleanup() {
+  # Same fix as inside supervise() -- see point 3 in its comment above.
+  # Disabling our own INT/TERM handling here, once, means a second Ctrl+C
+  # can't interrupt the `wait` below early either.
   trap '' INT TERM
   echo ""
   echo "start_lidar_service: stopping..."
@@ -136,6 +190,9 @@ supervise "publisher+recorder" "$PUBLISHER_PIDFILE" \
     "$LOG_PATH" "$DB_PATH" "$PUBLISH_ENDPOINT" &
 PUBLISHER_SUPERVISOR_PID=$!
 
+# A short head start before the query server opens the same log/db files --
+# purely so the recorder has created them if this is a brand new recording;
+# ScanQueryServer/ScanReader require the files to already exist.
 sleep 2
 
 echo "start_lidar_service: starting query backup server (port 5560) ..."
@@ -146,4 +203,9 @@ QUERY_SERVER_SUPERVISOR_PID=$!
 echo "start_lidar_service: both running. live: tcp://$THIS_MACHINE_IP:5556  backup: tcp://$THIS_MACHINE_IP:5560"
 echo "start_lidar_service: either one will auto-restart if it exits; Ctrl+C to stop both for real."
 
+# Unlike the old `wait -n` here, this blocks until BOTH supervisors have
+# been told to stop and have finished (via cleanup(), triggered by the trap
+# above) -- a single child dying no longer ends the script, since its own
+# supervisor now handles that. Only an explicit Ctrl+C/kill on this script
+# ends it.
 wait "$PUBLISHER_SUPERVISOR_PID" "$QUERY_SERVER_SUPERVISOR_PID"

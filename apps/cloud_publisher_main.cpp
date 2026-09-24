@@ -1,3 +1,22 @@
+// Step 6's runnable half: read the real multiScan136 and publish every
+// cloud onto the network. Run this in one terminal and cloud_subscriber_main
+// in another. Same shape as scan_publisher_main.cpp -- the loop is short on
+// purpose, everything hard is behind SickCloudSource, CloudPublisher, and
+// the codec.
+//
+// Usage:
+//   ./cloud_publisher_main <launch_file> <sensor_ip> <this_machine_ip>
+//                          [endpoint] [topic] [udp_port] [imu_udp_port]
+// Defaults: ipc:///tmp/lidar_cloud.sock, lidar.cloud, 0 (launch file
+// default), 0 (launch file default)
+//
+// To publish to other machines, bind a TCP endpoint instead. To run
+// alongside a 2D picoScan150 at the same time, pass DISTINCT udp_port /
+// imu_udp_port values (e.g. 2125 7513) so the two sensors' drivers don't
+// fight over the same UDP ports:
+//   ./cloud_publisher_main ~/sick_scan_ws/sick_scan_xd/launch/sick_multiscan.launch
+//       192.168.12.223 192.168.12.240 "tcp://*:5580" lidar.cloud 2125 7513
+
 #include "lidar/cloud_publisher.hpp"
 #include "lidar/point_cloud.hpp"
 #include "sick_cloud_source.hpp"
@@ -35,6 +54,9 @@ int main(int argc, char** argv) {
   cfg.imu_udp_port = argc > 7 ? std::atoi(argv[7]) : 0;
 
   try {
+    // Bind before connecting to the sensor -- same reasoning as
+    // scan_publisher_main: if the endpoint is unusable we want to know
+    // before the sensor is streaming.
     lidar::CloudPublisher publisher(endpoint, topic);
     std::printf("publishing on %s, topic \"%s\"\n", endpoint.c_str(), topic.c_str());
 
@@ -42,6 +64,7 @@ int main(int argc, char** argv) {
                 cfg.udp_receiver_ip.c_str());
     lidar::SickCloudSource source(cfg);
 
+    // Installed AFTER the connect -- see sick_cloud_source_demo.cpp for why.
     std::signal(SIGINT, handle_sigint);
 
     std::printf("connected. publishing clouds (Ctrl+C to stop) ...\n");
@@ -59,8 +82,11 @@ int main(int argc, char** argv) {
       if (publisher.publish(cloud)) {
         ++published;
       }
+      // publish() returning false means the send queue was full and the
+      // cloud was dropped -- a subscriber is too slow. Same "count it,
+      // don't stop for it" outcome as scan_publisher_main.
 
-      if (published - last_reported >= 20) {
+      if (published - last_reported >= 20) {  // ~1 s at ~20 Hz
         last_reported = published;
         std::printf("  ... %llu published, %llu dropped, last cloud %zu points\n",
                     static_cast<unsigned long long>(published),

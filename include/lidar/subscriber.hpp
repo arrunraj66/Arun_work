@@ -1,6 +1,6 @@
 #pragma once
 //
-// lidar/subscriber.hpp  ScanSubscriber, Step 5: receive scans published
+// lidar/subscriber.hpp — ScanSubscriber, Step 5: receive scans published
 // by a ScanPublisher, possibly from another machine.
 //
 // Note what it derives from. A subscriber IS an IScanSource: something you
@@ -10,6 +10,9 @@
 // the recorder, a GUI, a future obstacle detector -- works unchanged
 // whether the scans come off the sensor in this process or over the
 // network from a different one. Nothing above this line has to know which.
+//
+// Neither <zmq.hpp>, the protobuf headers, nor mw/transport.hpp appear
+// here, same discipline as everywhere else.
 
 #include <cstdint>
 #include <memory>

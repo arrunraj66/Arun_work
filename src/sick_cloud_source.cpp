@@ -17,6 +17,10 @@ namespace lidar {
 
 namespace {
 
+// Identical helpers to sick_scan_source.cpp -- duplicated rather than
+// shared, because sharing them would mean a third .cpp both files depend
+// on, for four small functions neither is likely to change independently
+// of its own file. If that changes, factor them out then.
 int find_field_offset(const SickScanPointFieldArray& fields, const char* name) {
   for (std::uint64_t i = 0; i < fields.size; ++i) {
     if (std::strcmp(fields.buffer[i].name, name) == 0) {
@@ -38,11 +42,20 @@ T read_field(const std::uint8_t* point, int offset) {
   return value;
 }
 
+// Same guard as sick_scan_source.cpp's kMaxPlausibleScanTimeNs, same
+// justification -- the driver's uptime-to-epoch timestamp jump is a
+// property of the vendor stack, not of which cloud we asked for.
 constexpr std::int64_t kMaxPlausibleScanTimeNs = 5'000'000'000LL;  // 5 seconds
 
 }  // namespace
 
 struct SickCloudSource::Impl {
+  // Separate registry from SickScanSource::Impl's -- different key type
+  // (this file's Impl*, not that one's), and the two classes are never
+  // aware of each other. A process running both a SickScanSource and a
+  // SickCloudSource against two different sensors (multiScan giving 3D,
+  // picoScan giving 2D, say) needs each registry to only ever resolve
+  // handles it itself created.
   static std::map<SickScanApiHandle, Impl*>& registry() {
     static std::map<SickScanApiHandle, Impl*> instances;
     return instances;
@@ -160,6 +173,13 @@ struct SickCloudSource::Impl {
     queue_cv.notify_one();
   }
 
+  /// Turns one vendor point cloud into one lidar::PointCloud. The one real
+  /// difference from SickScanSource::Impl::to_scan(): this also looks up
+  /// and copies the "elevation" field, which is exactly what distinguishes
+  /// a genuine 3D cloud from the flattened 2D Scan the other class builds.
+  /// Returns false if the cloud isn't one we can read (no
+  /// range/azimuth/elevation fields -- e.g. a 2D-only cloud got requested
+  /// by mistake).
   bool to_cloud(const SickScanPointCloudMsg& msg, PointCloud& out) {
     const int offset_range = find_field_offset(msg.fields, "range");
     const int offset_azimuth = find_field_offset(msg.fields, "azimuth");
@@ -167,12 +187,16 @@ struct SickCloudSource::Impl {
     const int offset_intensity = find_intensity_offset(msg.fields);
     const int offset_echo = find_field_offset(msg.fields, "echo");
 
+    // Unlike to_scan(), elevation is REQUIRED here -- a cloud missing it
+    // cannot be a real 3D frame, and silently falling back to z=0 for
+    // every point would produce a plausible-looking but wrong result
+    // rather than an obvious failure.
     if (offset_range < 0 || offset_azimuth < 0 || offset_elevation < 0) return false;
     if (msg.data.buffer == nullptr || msg.point_step == 0) return false;
 
     const std::uint64_t num_points =
         static_cast<std::uint64_t>(msg.width) * static_cast<std::uint64_t>(msg.height);
-    if (num_points * msg.point_step > msg.data.size) return false;
+    if (num_points * msg.point_step > msg.data.size) return false;  // truncated buffer
 
     out.ranges.clear();
     out.azimuths.clear();
@@ -186,6 +210,9 @@ struct SickCloudSource::Impl {
     for (std::uint64_t i = 0; i < num_points; ++i) {
       const std::uint8_t* point = msg.data.buffer + i * msg.point_step;
 
+      // Single-echo only, same restriction and same reason as
+      // SickScanSource::Impl::to_scan(): multi-echo support is a later
+      // step, not this one.
       if (offset_echo >= 0 && read_field<std::int8_t>(point, offset_echo) != 0) {
         continue;
       }

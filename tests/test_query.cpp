@@ -95,6 +95,7 @@ int main() {
     check(client.ok(), "a range with no matches still reaches the server");
     check(got.empty(), "and an empty vector correctly means \"nothing in range\"");
   }
+
   {
     // Scans are 40ms apart (see make_scan). A 120ms window anchored to the
     // newest scan (#9) should reach exactly back to #6: 9,8,7,6 are each
@@ -120,6 +121,7 @@ int main() {
     check(got.size() == 10, "and returns every scan, confirming it anchors to the newest "
                              "RECORDED stamp, not wall-clock now");
   }
+
   keep_serving = false;
   server_thread.join();
   check(server.served() == 5, "the server counted exactly the five requests answered");

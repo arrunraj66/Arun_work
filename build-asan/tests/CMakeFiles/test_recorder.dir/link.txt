@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/test_recorder.dir/test_recorder.cpp.o ../proto/CMakeFiles/lidar_proto.dir/generated/lidar_scan.pb.cc.o -o test_recorder  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 ../third_party/sqlite3/libsqlite3_vendored.a /usr/lib/x86_64-linux-gnu/libprotobuf.so 

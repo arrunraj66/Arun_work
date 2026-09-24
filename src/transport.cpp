@@ -120,6 +120,7 @@ std::optional<Message> Subscriber::receive(int timeout_ms) noexcept {
     return std::nullopt;
   }
 }
+
 // ---------- Requester ----------
 
 namespace {
@@ -228,4 +229,5 @@ void Replier::reply(std::string_view payload) noexcept {
     // serve_one()'s caller only ever learns "a request was served".
   }
 }
+
 }  // namespace mw

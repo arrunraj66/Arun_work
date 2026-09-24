@@ -1,12 +1,12 @@
 #pragma once
 //
-// lidar/recorder.hpp  ScanRecorder, Concept 3 from Lesson 2 turned into
+// lidar/recorder.hpp — ScanRecorder, Concept 3 from Lesson 2 turned into
 // code: an append-only log holds the scans, a SQLite index holds one row
 // per scan (sequence, timestamp, byte offset, byte length, sample count)
 // so a reader can later find "the scan near time T" without reading the
 // whole log from the start.
 //
-// Neither SQLite nor protobuf appears in this header -- both are pimpl'd
+// Neither SQLite nor protobuf appears in this header — both are pimpl'd
 // away in src/recorder.cpp, same PUBLIC/PRIVATE discipline as everything
 // else the GUI team links against.
 

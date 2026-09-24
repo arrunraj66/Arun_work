@@ -1,6 +1,6 @@
 #pragma once
 //
-// mw/executor.hpp  layer L2, the thing that runs nodes.
+// mw/executor.hpp — layer L2, the thing that runs nodes.
 //
 // One executor owns one loop and ticks a list of nodes in a fixed order. It
 // is the only object in the system that decides when anything happens, which
@@ -14,8 +14,8 @@
 // cannot tell the difference, and that is what makes the timing behaviour of
 // the whole system testable in milliseconds instead of minutes.
 //
-// Note there is no run() here. Owning the real-time loop  sleeping until the
-// next period, deciding what to do about a node that keeps faulting  is the
+// Note there is no run() here. Owning the real-time loop — sleeping until the
+// next period, deciding what to do about a node that keeps faulting — is the
 // supervisor's job, in the next stage. This class does one pass and reports.
 
 #include <cstdint>
@@ -29,7 +29,7 @@ namespace mw {
 
 class Executor {
  public:
-  /// What the executor observed about one node. Numbers only  the executor
+  /// What the executor observed about one node. Numbers only — the executor
   /// counts and measures, it does not judge.
   struct Report {
     std::string name;
@@ -47,7 +47,7 @@ class Executor {
   };
 
   /// `period_ns` is how often the caller intends to call step(). The executor
-  /// does not enforce it  it cannot, it does not own the loop  but it needs
+  /// does not enforce it — it cannot, it does not own the loop — but it needs
   /// the number to schedule a node whose spec says period_ns == 0.
   explicit Executor(std::int64_t period_ns);
   ~Executor();
@@ -71,7 +71,7 @@ class Executor {
   void configure_all();
 
   /// start() every node, in order. If one throws, every node already started
-  /// is stopped again, in reverse order, before the exception is rethrown 
+  /// is stopped again, in reverse order, before the exception is rethrown —
   /// a half-started system is never left running.
   void start_all();
 
@@ -79,7 +79,7 @@ class Executor {
   /// each. Never throws, never blocks, never allocates.
   void step(std::int64_t now_ns);
 
-  /// stop() every node in REVERSE order  teardown mirrors construction, so
+  /// stop() every node in REVERSE order — teardown mirrors construction, so
   /// a node is never asked to shut down after something it depends on
   /// already has. Safe to call more than once.
   void stop_all() noexcept;

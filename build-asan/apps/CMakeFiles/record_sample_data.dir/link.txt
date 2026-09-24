@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/record_sample_data.dir/record_sample_data.cpp.o -o record_sample_data  -Wl,-rpath,/home/intern/Documents/auv_middleware/build-asan/src ../src/liblidar.so.0.1.0 

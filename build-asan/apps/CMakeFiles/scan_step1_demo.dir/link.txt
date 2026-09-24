@@ -1,1 +1,0 @@
-/usr/bin/c++ -g -fsanitize=address,undefined CMakeFiles/scan_step1_demo.dir/scan_step1_demo.cpp.o -o scan_step1_demo  ../src/libmw.a /usr/lib/x86_64-linux-gnu/libprotobuf.so /usr/lib/x86_64-linux-gnu/libzmq.so 

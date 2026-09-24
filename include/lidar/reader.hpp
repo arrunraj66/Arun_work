@@ -1,6 +1,6 @@
 #pragma once
 //
-// lidar/reader.hpp  ScanReader, Step 7: read back what ScanRecorder wrote.
+// lidar/reader.hpp — ScanReader, Step 7: read back what ScanRecorder wrote.
 // This is the other half of Concept 3's log+index split: the recorder only
 // ever appends, the reader only ever looks things up. Same pimpl shape as
 // ScanRecorder, for the same reason -- neither SQLite nor protobuf may leak

@@ -1,4 +1,4 @@
-// mw_executor_demo  the same executor the test drives with a fake clock,
+// mw_executor_demo — the same executor the test drives with a fake clock,
 // driven here by the real one.
 //
 // Nothing about the Executor changes between the two. The test hands it
@@ -10,7 +10,7 @@
 // so the report at the end has something in the overrun column.
 //
 // Note what the nodes do NOT do: talk to each other. There is no way for them
-// to, yet  moving data between nodes by topic name is layer L3, the next
+// to, yet — moving data between nodes by topic name is layer L3, the next
 // stage. A node at this stage computes and nothing more, which is exactly how
 // much of the contract is actually built.
 

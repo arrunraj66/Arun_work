@@ -1,6 +1,6 @@
 #pragma once
 //
-// lidar/query_client.hpp  ScanQueryClient, the backup path to ScanSubscriber.
+// lidar/query_client.hpp — ScanQueryClient, the backup path to ScanSubscriber.
 //
 // ScanSubscriber (lidar/subscriber.hpp) is push-based: it sees only what was
 // published WHILE it was listening, and a scan published before it connected
@@ -52,6 +52,7 @@ class ScanQueryClient {
   /// means either nothing matched OR the server could not be reached; call
   /// ok() to tell those apart.
   [[nodiscard]] std::vector<Scan> range(std::int64_t start_ns, std::int64_t end_ns) noexcept;
+
   /// A rolling window: every scan recorded within `window_ns` of the MOST
   /// RECENTLY RECORDED scan (not wall-clock "now" -- deliberately, so this
   /// still means something sensible hours after recording stopped, or if
@@ -64,6 +65,7 @@ class ScanQueryClient {
   /// window OR the server could not be reached; call ok() to tell those
   /// apart.
   [[nodiscard]] std::vector<Scan> recent(std::int64_t window_ns) noexcept;
+
   /// Whether the MOST RECENT call above actually reached the server and got
   /// a well-formed reply. False after latest()/range() means what came back
   /// (nullopt / empty) says nothing about whether data existed -- the

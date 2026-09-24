@@ -1,11 +1,11 @@
 #pragma once
 //
-// lidar/publisher.hpp  ScanPublisher, Step 4: get scans out of this
+// lidar/publisher.hpp — ScanPublisher, Step 4: get scans out of this
 // process and onto the network.
 //
 // Built ON TOP of mw::Publisher rather than on ZeroMQ directly. The
 // middleware already owns "send a (topic, payload) pair over a PUB socket,
-// never block, count what you drop"  reimplementing that here would mean
+// never block, count what you drop" — reimplementing that here would mean
 // two pieces of code to keep correct instead of one. What this class adds
 // is the one thing the middleware deliberately does not know about:
 // turning a lidar::Scan into bytes.
@@ -27,8 +27,8 @@ namespace lidar {
 class ScanPublisher {
  public:
   /// `endpoint` is a ZeroMQ address, which this publisher BINDS:
-  ///   tcp://*:5556           any machine on the network may connect
-  ///   ipc:///tmp/lidar.sock  same machine only, no TCP stack in the way
+  ///   tcp://*:5556          — any machine on the network may connect
+  ///   ipc:///tmp/lidar.sock — same machine only, no TCP stack in the way
   ///
   /// `topic` is the subscription key a ScanSubscriber must match. It is
   /// sent as a separate first frame, so filtering happens in ZeroMQ rather
@@ -54,7 +54,7 @@ class ScanPublisher {
   /// How many scans this publisher has dropped since it was created.
   [[nodiscard]] std::uint64_t dropped() const noexcept;
 
-  /// The topic this publisher sends under  a subscriber must match it.
+  /// The topic this publisher sends under — a subscriber must match it.
   [[nodiscard]] const std::string& topic() const noexcept;
 
  private:
