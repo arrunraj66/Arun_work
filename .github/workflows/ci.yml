@@ -1,0 +1,51 @@
+name: AUV Middleware CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+      - "backup/**"
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            g++ \
+            pkg-config \
+            libzmq3-dev \
+            libprotobuf-dev \
+            protobuf-compiler \
+            libsqlite3-dev \
+            libopencv-dev \
+            python3
+
+      - name: Check scripts
+        run: |
+          bash -n scripts/start_lidar_service.sh
+          bash -n scripts/start_lidar3d_service.sh
+          python3 -m py_compile scripts/cloud_subscriber_viewer.py
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Debug
+          -DMW_WARNINGS_AS_ERRORS=OFF
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
