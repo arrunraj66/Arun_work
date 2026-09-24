@@ -2,3 +2,9 @@ build/
 compile_commands.json
 .cache/
 *.user
+__pycache__/
+scripts/generated/
+*.db
+*.db-shm
+*.db-wal
+*.log

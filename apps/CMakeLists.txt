@@ -38,6 +38,12 @@ add_executable(scan_query_client_demo scan_query_client_demo.cpp)
 target_compile_options(scan_query_client_demo PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 target_link_libraries(scan_query_client_demo PRIVATE lidar::lidar)
 
+# One terminal dashboard for the live subscriber, SQLite recording, and
+# request/reply backup path. It uses only the public lidar library.
+add_executable(lidar_monitor_main lidar_monitor_main.cpp)
+target_compile_options(lidar_monitor_main PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(lidar_monitor_main PRIVATE lidar::lidar)
+
 # The camera side's first step, same shape as sick_scan_source_demo was for
 # the lidar: a standalone program proving the webcam + publish path work in
 # isolation, before any of it becomes a library or a supervised service.
@@ -72,6 +78,13 @@ if(SICK_SCAN_XD_FOUND)
   target_include_directories(record_live_scans PRIVATE ${PROJECT_SOURCE_DIR}/src)
   target_compile_options(record_live_scans PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
   target_link_libraries(record_live_scans PRIVATE lidar::sick lidar::lidar)
+
+  # This is the executable used by scripts/start_lidar_service.sh. It owns one
+  # sensor connection and publishes and records every received 2D scan.
+  add_executable(scan_publisher_recorder_main scan_publisher_recorder_main.cpp)
+  target_include_directories(scan_publisher_recorder_main PRIVATE ${PROJECT_SOURCE_DIR}/src)
+  target_compile_options(scan_publisher_recorder_main PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+  target_link_libraries(scan_publisher_recorder_main PRIVATE lidar::sick lidar::lidar)
 
   # Step 4's runnable half: sensor in, network out. Needs the SDK, so it
   # lives inside this guard alongside the other sensor-owning programs.
