@@ -51,6 +51,7 @@ class Context {
 };
 
 /// One received frame pair.
+/// Inbound ZeroMQ frames larger than 64 MiB are rejected before application parsing.
 struct Message {
   std::string topic;
   std::string payload;

@@ -52,3 +52,49 @@ protobuf_generate(
 
 target_link_libraries(lidar_proto PUBLIC protobuf::libprotobuf)
 set_target_properties(lidar_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_library(imu_proto OBJECT imu.proto)
+
+set(IMU_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+file(MAKE_DIRECTORY ${IMU_PROTO_OUT})
+target_include_directories(imu_proto PUBLIC ${IMU_PROTO_OUT})
+
+protobuf_generate(
+  TARGET         imu_proto
+  IMPORT_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+  PROTOC_OUT_DIR ${IMU_PROTO_OUT}
+)
+
+target_link_libraries(imu_proto PUBLIC protobuf::libprotobuf)
+set_target_properties(imu_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+
+add_library(camera_proto OBJECT camera_frame.proto)
+
+set(CAMERA_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+file(MAKE_DIRECTORY ${CAMERA_PROTO_OUT})
+target_include_directories(camera_proto PUBLIC ${CAMERA_PROTO_OUT})
+
+protobuf_generate(
+  TARGET         camera_proto
+  IMPORT_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+  PROTOC_OUT_DIR ${CAMERA_PROTO_OUT}
+)
+
+target_link_libraries(camera_proto PUBLIC protobuf::libprotobuf)
+set_target_properties(camera_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+add_library(nav_proto OBJECT nav_command.proto nav_waypoint.proto)
+
+set(NAV_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/generated)
+file(MAKE_DIRECTORY ${NAV_PROTO_OUT})
+target_include_directories(nav_proto PUBLIC ${NAV_PROTO_OUT})
+
+protobuf_generate(
+  TARGET         nav_proto
+  IMPORT_DIRS    ${CMAKE_CURRENT_SOURCE_DIR}
+  PROTOC_OUT_DIR ${NAV_PROTO_OUT}
+)
+
+target_link_libraries(nav_proto PUBLIC protobuf::libprotobuf)
+set_target_properties(nav_proto PROPERTIES POSITION_INDEPENDENT_CODE ON)

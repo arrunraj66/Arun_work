@@ -103,3 +103,69 @@ if(SICK_SCAN_XD_FOUND)
     PRIVATE ${SICK_SCAN_XD_LIBRARY}  # the vendor .so stays invisible outside this one .cpp
   )
 endif()
+add_library(imu STATIC
+  imu_codec.cpp
+  imu_publisher.cpp
+  imu_subscriber.cpp
+)
+add_library(imu::imu ALIAS imu)
+
+target_include_directories(imu
+  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+          $<INSTALL_INTERFACE:include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_compile_options(imu PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+target_link_libraries(imu
+  PRIVATE imu_proto
+  PRIVATE mw::mw
+)
+
+add_library(camera STATIC
+  camera_codec.cpp
+  camera_publisher.cpp
+  camera_subscriber.cpp
+)
+add_library(camera::camera ALIAS camera)
+
+target_include_directories(camera
+  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+          $<INSTALL_INTERFACE:include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_compile_options(camera PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+target_link_libraries(camera
+  PRIVATE camera_proto
+  PRIVATE mw::mw
+)
+
+add_library(nav STATIC
+  nav_codec.cpp
+  nav_avoider.cpp
+  nav_publisher.cpp
+  nav_subscriber.cpp
+  waypoint_codec.cpp
+  nav_follower.cpp
+  mission_publisher.cpp
+  mission_subscriber.cpp
+  pose_publisher.cpp
+  pose_subscriber.cpp
+)
+add_library(nav::nav ALIAS nav)
+
+target_include_directories(nav
+  PUBLIC  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+          $<INSTALL_INTERFACE:include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_compile_options(nav PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+target_link_libraries(nav
+  PRIVATE nav_proto
+  PRIVATE mw::mw
+)

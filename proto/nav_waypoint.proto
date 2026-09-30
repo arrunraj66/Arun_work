@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package nav.proto;
+
+// Wire format for nav::Waypoint / nav::WaypointMission -- Navigation Step 2.
+// A mission is sent as one message (not one message per waypoint) so a
+// follower never has to reassemble a list out of order or worry about a
+// partial mission arriving.
+message Waypoint {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float arrival_radius = 4;
+}
+
+message WaypointMission {
+  // Bumped by the sender every time the waypoint LIST itself changes.
+  // A follower must reset its progress (back to waypoint 0) only when this
+  // differs from the mission_id it already has -- see waypoint.hpp.
+  int64 mission_id = 1;
+  bool loop = 2;
+  repeated Waypoint waypoints = 3;
+}
+
+// Wire format for nav::VehiclePose -- where the vehicle is right now.
+// Published by whatever currently has the best position estimate: the
+// Webots Supervisor's ground truth today, a sensor-fusion estimate later.
+// See vehicle_pose.hpp for why nothing downstream needs to know which.
+message VehiclePose {
+  int64 stamp_ns = 1;
+  float x = 2;
+  float y = 3;
+  float z = 4;
+  float heading_rad = 5;
+}
