@@ -76,7 +76,7 @@ if(SICK_SCAN_XD_FOUND)
 endif()
 add_executable(record_sample_data record_sample_data.cpp)
 target_compile_options(record_sample_data PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
-target_link_libraries(record_sample_data PRIVATE lidar::lidar)s
+target_link_libraries(record_sample_data PRIVATE lidar::lidar)
 # Reads back whatever record_sample_data (or a real recording) produced.
 # Only touches lidar::lidar's PUBLIC API (ScanReader) -- same reasoning as
 # test_reader: proves the log+index pair is usable without protobuf or
@@ -89,3 +89,15 @@ target_link_libraries(dump_scans PRIVATE lidar::lidar)
   target_include_directories(sick_cloud_source_demo PRIVATE ${PROJECT_SOURCE_DIR}/src)
   target_compile_options(sick_cloud_source_demo PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
   target_link_libraries(sick_cloud_source_demo PRIVATE lidar::sick)
+
+add_executable(nav_avoid_main nav_avoid_main.cpp)
+target_compile_options(nav_avoid_main PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(nav_avoid_main PRIVATE lidar::lidar nav::nav)
+
+add_executable(waypoint_follow_main waypoint_follow_main.cpp)
+target_compile_options(waypoint_follow_main PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(waypoint_follow_main PRIVATE nav::nav)
+
+add_executable(waypoint_mission_sender_main waypoint_mission_sender_main.cpp)
+target_compile_options(waypoint_mission_sender_main PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(waypoint_mission_sender_main PRIVATE nav::nav)

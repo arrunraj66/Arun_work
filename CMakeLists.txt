@@ -40,6 +40,13 @@ add_subdirectory(third_party/sqlite3)  # vendored SQLite amalgamation -- see
 add_subdirectory(proto)   # must come first: src/ links the generated code
 add_subdirectory(src)
 add_subdirectory(apps)
+
+# Qt point-cloud viewer. The gui/CMakeLists.txt quietly skips this target when
+# Qt5 development packages are not installed, so headless builds still work.
+option(MW_BUILD_GUI "Build the Qt 3D point-cloud viewer" ON)
+if(MW_BUILD_GUI)
+  add_subdirectory(gui)
+endif()
 # Step 8: install rules + the lidarConfig.cmake that find_package() looks for.
 # Must come after add_subdirectory(src) -- it refers to the `lidar` target.
 include(InstallLidar)

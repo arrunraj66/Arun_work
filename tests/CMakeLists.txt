@@ -16,6 +16,7 @@ add_test(NAME test_reqrep COMMAND test_reqrep)
 # lidar:: API only. Runs the server on its own thread, hence Threads::Threads
 # (find_package(Threads) already ran for test_reqrep above).
 add_executable(test_query test_query.cpp)
+target_include_directories(test_query PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(test_query PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 target_link_libraries(test_query PRIVATE lidar::lidar Threads::Threads)
 add_test(NAME test_query COMMAND test_query)
@@ -66,3 +67,38 @@ target_include_directories(test_cloud_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_compile_options(test_cloud_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
 target_link_libraries(test_cloud_codec PRIVATE lidar::lidar lidar_proto)
 add_test(NAME test_cloud_codec COMMAND test_cloud_codec)
+
+
+add_executable(test_imu_codec test_imu_codec.cpp)
+target_include_directories(test_imu_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(test_imu_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_imu_codec PRIVATE imu::imu imu_proto)
+add_test(NAME test_imu_codec COMMAND test_imu_codec)
+
+add_executable(test_camera_codec test_camera_codec.cpp)
+target_include_directories(test_camera_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(test_camera_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_camera_codec PRIVATE camera::camera camera_proto)
+add_test(NAME test_camera_codec COMMAND test_camera_codec)
+
+add_executable(test_nav_avoider test_nav_avoider.cpp)
+target_compile_options(test_nav_avoider PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_nav_avoider PRIVATE nav::nav)
+add_test(NAME test_nav_avoider COMMAND test_nav_avoider)
+
+add_executable(test_nav_codec test_nav_codec.cpp)
+target_include_directories(test_nav_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(test_nav_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_nav_codec PRIVATE nav::nav nav_proto)
+add_test(NAME test_nav_codec COMMAND test_nav_codec)
+
+add_executable(test_nav_follower test_nav_follower.cpp)
+target_compile_options(test_nav_follower PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_nav_follower PRIVATE nav::nav)
+add_test(NAME test_nav_follower COMMAND test_nav_follower)
+
+add_executable(test_waypoint_codec test_waypoint_codec.cpp)
+target_include_directories(test_waypoint_codec PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_compile_options(test_waypoint_codec PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+target_link_libraries(test_waypoint_codec PRIVATE nav::nav nav_proto)
+add_test(NAME test_waypoint_codec COMMAND test_waypoint_codec)

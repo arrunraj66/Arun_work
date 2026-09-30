@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package imu.proto;
+
+// The wire format for one imu::Imu reading. Field layout mirrors imu/imu.hpp
+// field-for-field on purpose -- see that file for what each field means and
+// why (has_orientation, linear_acceleration including gravity, etc). Field
+// tags are permanent the moment this runs anywhere real, same rule every
+// other .proto in this project follows.
+message Vec3 {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+}
+
+message Quaternion {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+  double w = 4;
+}
+
+message Imu {
+  string     frame_id          = 1;
+  int64      stamp_ns          = 2;
+  // Named orientation_valid, not has_orientation: protoc already generates
+  // a has_orientation() presence-check method for the message-typed
+  // `orientation` field below, and a scalar field literally named
+  // has_orientation collides with it (verified: this is a real compile
+  // error, "cannot be overloaded" / "redefinition", not a guess).
+  bool       orientation_valid = 3;
+  Quaternion orientation       = 4;
+  Vec3       angular_velocity  = 5;
+  Vec3       linear_acceleration = 6;
+}

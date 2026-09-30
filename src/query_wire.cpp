@@ -8,6 +8,8 @@
 namespace lidar {
 namespace {
 
+constexpr std::uint32_t kMaxScansPerResponse = 100'000;
+
 void put_u32_le(std::string& out, std::uint32_t v) {
   out.push_back(static_cast<char>(v & 0xFFU));
   out.push_back(static_cast<char>((v >> 8) & 0xFFU));
@@ -46,6 +48,10 @@ std::vector<Scan> decode_scans(const std::string& bytes) {
 
   std::vector<Scan> scans;
   const std::uint32_t count = get_u32_le(bytes, 0);
+  const std::size_t available_length_prefixes = (bytes.size() - 4) / 4;
+  if (count > kMaxScansPerResponse || count > available_length_prefixes) {
+    throw std::runtime_error("lidar::decode_scans: response scan count exceeds its limits");
+  }
   scans.reserve(count);
 
   std::size_t pos = 4;
@@ -57,7 +63,7 @@ std::vector<Scan> decode_scans(const std::string& bytes) {
     const std::uint32_t length = get_u32_le(bytes, pos);
     pos += 4;
 
-    if (pos + length > bytes.size()) {
+    if (length > bytes.size() - pos) {
       throw std::runtime_error("lidar::decode_scans: truncated before a scan's declared end");
     }
     if (!wire.ParseFromArray(bytes.data() + pos, static_cast<int>(length))) {

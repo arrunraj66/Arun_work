@@ -13,6 +13,10 @@ namespace {
 // ZeroMQ's PUB socket silently discards; we make that visible instead.
 constexpr int kHighWaterMark = 1000;
 
+// Bound memory retained for inbound traffic before the application parses it.
+constexpr int kReceiveHighWaterMark = 10;
+constexpr std::int64_t kMaxInboundMessageSize = 64LL * 1024 * 1024;
+
 // On close, throw away anything still queued instead of waiting for it.
 // Without this a process can hang in its own destructor.
 constexpr int kLingerMs = 0;
@@ -83,7 +87,8 @@ struct Subscriber::Impl {
 
   Impl(zmq::context_t& ctx, const std::string& endpoint)
       : sock(ctx, zmq::socket_type::sub) {
-    sock.set(zmq::sockopt::rcvhwm, kHighWaterMark);
+    sock.set(zmq::sockopt::rcvhwm, kReceiveHighWaterMark);
+    sock.set(zmq::sockopt::maxmsgsize, kMaxInboundMessageSize);
     sock.set(zmq::sockopt::linger, kLingerMs);
     sock.connect(endpoint);
   }
@@ -130,6 +135,7 @@ namespace {
 zmq::socket_t make_req_socket(zmq::context_t& ctx, const std::string& endpoint) {
   zmq::socket_t sock(ctx, zmq::socket_type::req);
   sock.set(zmq::sockopt::linger, kLingerMs);
+  sock.set(zmq::sockopt::maxmsgsize, kMaxInboundMessageSize);
   // No RCVHWM/SNDHWM here on purpose: REQ/REP is one in flight at a time by
   // construction, a queue depth would never come into play.
   sock.connect(endpoint);
@@ -194,6 +200,8 @@ struct Replier::Impl {
 
   Impl(zmq::context_t& ctx, const std::string& endpoint)
       : sock(ctx, zmq::socket_type::rep) {
+    sock.set(zmq::sockopt::rcvhwm, kReceiveHighWaterMark);
+    sock.set(zmq::sockopt::maxmsgsize, kMaxInboundMessageSize);
     sock.set(zmq::sockopt::linger, kLingerMs);
     sock.bind(endpoint);
   }

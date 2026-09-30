@@ -9,9 +9,11 @@
 #include "lidar/query_server.hpp"
 #include "lidar/recorder.hpp"
 #include "lidar/scan.hpp"
+#include "query_wire.hpp"
 
 #include <cstdio>
 #include <cstdlib>
+#include <stdexcept>
 #include <string>
 #include <thread>
 
@@ -43,9 +45,27 @@ bool same_scan(const lidar::Scan& a, const lidar::Scan& b) {
   return a.frame_id == b.frame_id && a.stamp_ns == b.stamp_ns && a.ranges == b.ranges;
 }
 
+void test_rejects_excessive_scan_count() {
+  constexpr std::uint32_t count = 100'001;
+  std::string bytes(4 + (static_cast<std::size_t>(count) * 4), '\0');
+  for (std::size_t byte = 0; byte < 4; ++byte) {
+    bytes[byte] = static_cast<char>((count >> (byte * 8)) & 0xFFU);
+  }
+
+  bool rejected = false;
+  try {
+    (void)lidar::decode_scans(bytes);
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  check(rejected, "query decoder rejects excessive scan counts before allocation");
+}
+
 }  // namespace
 
 int main() {
+  test_rejects_excessive_scan_count();
+
   const std::string log_path = "/tmp/test_query.log";
   const std::string db_path  = "/tmp/test_query.db";
   const std::string endpoint = "ipc:///tmp/test_query.ipc";

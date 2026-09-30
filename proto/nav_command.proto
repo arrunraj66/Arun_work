@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package nav.proto;
+
+// The wire format for one nav::NavCommand -- a reactive steering decision,
+// published by nav_avoid_main and consumed by whatever actually moves the
+// vehicle (right now, the Webots controller's Supervisor fields; later,
+// a real thruster driver). See nav/command.hpp for what each field means.
+// Field tags are permanent the moment this runs anywhere real, same rule
+// lidar_scan.proto and lidar_point_cloud.proto already follow.
+message NavCommand {
+  int64  stamp_ns          = 1;
+  float  forward_speed     = 2;
+  float  turn_rate         = 3;
+  bool   obstacle_detected = 4;
+}
